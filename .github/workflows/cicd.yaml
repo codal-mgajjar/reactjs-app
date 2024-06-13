@@ -25,5 +25,5 @@ jobs:
         run: |
           cd /home/ubuntu/reactjs-app
           git pull origin deploy-to-ec2
-          docker build -t react-app .
-          docker run -d -p 3000:80 --name react-app react-app
+          sudo docker build -t react-app .
+          sudo docker run -d -p 3000:80 --name react-app react-app
