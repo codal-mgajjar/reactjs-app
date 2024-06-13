@@ -16,12 +16,8 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Deploy to EC2
-        env:
-          DEPLOY_EC2_HOST: ${{ secrets.DEPLOY_EC2_HOST }}
-          DEPLOY_EC2_USER: ${{ secrets.DEPLOY_EC2_USER }}
-          DEPLOY_EC2_KEY: ${{ secrets.DEPLOY_EC2_KEY }}
         run: |
-            ssh -i $DEPLOY_EC2_KEY $DEPLOY_EC2_USER@$DEPLOY_EC2_HOST
+            ssh -i ${{ secrets.DEPLOY_EC2_KEY }} ${{ secrets.DEPLOY_EC2_USER }}@${{ secrets.DEPLOY_EC2_HOST }}
             cd /home/ubuntu/reactjs-app
             git pull origin deploy-to-ec2
             sudo docker build -t react-app .
