@@ -1,0 +1,30 @@
+name: CICD
+on: 
+  push:
+    branches:
+      - deploy-to-ec2
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout Source
+        uses: actions/checkout@v3
+
+      # - name: Login to Docker Hub
+      #   run: Docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      # - name: Build Docker Image
+      #   run: docker build -t testingdeployment/reactjs-app .
+      # - name: Publish image to docker hub
+      #   run: docker push testingdeployment/reactjs-app:latest
+  deploy:
+    needs: build
+    runs-on: aws-ec2
+    steps: 
+      - name: Pull in Repo
+        run: |
+        cd /home/ubuntu/reactjs-app
+        git pull origin deploy-to-ec2
+        docker build -t react-app .
+        docker run -d -p 3000:80 --name react-app react-app
+        
