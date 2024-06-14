@@ -10,18 +10,16 @@ jobs:
     steps:
       - name: Checkout Source
         uses: actions/checkout@v3
-
-  deploy:
-    needs: build
-    runs-on: self-hosted
-    steps:
       - name: Deploy to Server
         uses: easingthemes/ssh-deploy@main
         env:
           SSH_PRIVATE_KEY: ${{ secrets.DEPLOYMENT_EC2_KEY }}
           REMOTE_HOST: ${{ secrets.DEPLOY_EC2_HOST }}
           REMOTE_USER: ${{ secrets.DEPLOYMENT_EC2_USER }}
-          TARGET: ${{ secrets.TARGET_DIR }}
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
       - name: Executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@master
         with:
