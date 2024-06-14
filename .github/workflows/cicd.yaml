@@ -15,6 +15,10 @@ jobs:
     needs: build
     runs-on: self-hosted
     steps:
+      - name: Create PEM File
+        run: |
+          echo "${{ secrets.DEPLOY_EC2_KEY }}" > deploy_key.pem
+          chmod 600 deploy_key.pem
       - name: print out example job
         uses: appleboy/ssh-action@v0.1.10
         with:
@@ -25,6 +29,7 @@ jobs:
           command_timeout: 30m
           script: | 
             echo "Nice Job!!!"
+      - name: Deploy to EC2
         env:
           DEPLOY_EC2_HOST: ${{ secrets.DEPLOY_EC2_HOST }}
           DEPLOY_EC2_USER: ${{ secrets.DEPLOY_EC2_USER }}
