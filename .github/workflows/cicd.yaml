@@ -25,6 +25,7 @@ jobs:
           DEPLOY_EC2_HOST: ${{ secrets.DEPLOY_EC2_HOST }}
           DEPLOY_EC2_USER: ${{ secrets.DEPLOY_EC2_USER }}
         run: |
+            cd /home/ubuntu
             ssh -i meshw.pem $DEPLOY_EC2_USER@$DEPLOY_EC2_HOST
             cd /home/ubuntu/reactjs-app
             git pull origin deploy-to-ec2
