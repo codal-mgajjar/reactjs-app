@@ -15,25 +15,20 @@ jobs:
     needs: build
     runs-on: self-hosted
     steps:
-      - name: Create PEM File
-        run: |
-          echo "${{ secrets.DEPLOY_EC2_KEY }}" > deploy_key.pem
-          chmod 600 deploy_key.pem
-      - name: print out example job
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.DEPLOY_EC2_HOST }}
-          username: ${{ secrets.DEPLOY_EC2_USER }}
-          key: ${{ secrets.DEPLOY_EC2_KEY }}
-          port: 2222
-          command_timeout: 30m
-          script: | 
-            echo "Nice Job!!!"
-      - name: Deploy to EC2
+      - name: Deploy to Server
+        uses: easingthemes/ssh-deploy@main
         env:
-          DEPLOY_EC2_HOST: ${{ secrets.DEPLOY_EC2_HOST }}
-          DEPLOY_EC2_USER: ${{ secrets.DEPLOY_EC2_USER }}
-        run: |
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOYMENT_EC2_KEY }}
+          REMOTE_HOST: ${{ secrets.DEPLOY_EC2_HOST }}
+          REMOTE_USER: ${{ secrets.DEPLOYMENT_EC2_USER }}
+          TARGET: ${{ secrets.TARGET_DIR }}
+      - name: Executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOYMENT_EC2_HOST_DNS }}
+          username: ${{ secrets.DEPLOYMENT_EC2_USER }}
+          key: ${{ secrets.DEPLOYMENT_EC2_KEY }}
+          script: |
             cd /home/ubuntu/reactjs-app
             git pull origin deploy-to-ec2
             sudo docker build -t react-app .
