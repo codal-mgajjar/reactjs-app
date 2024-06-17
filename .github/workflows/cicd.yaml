@@ -19,6 +19,7 @@ jobs:
           REMOTE_HOST: ${{ secrets.DEPLOY_EC2_HOST }}
           REMOTE_USER: ${{ secrets.DEPLOYMENT_EC2_USER }}
           TARGET: /home/ubuntu
+
   configure-docker:
     name: Configure Docker on Server
     needs: build
