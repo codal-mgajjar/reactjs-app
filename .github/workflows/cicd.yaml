@@ -23,7 +23,7 @@ jobs:
   deploy-app:
     environment: Env
     name: Deploy Application
-    needs: configure-docker
+    needs: build
     runs-on: self-hosted
     steps:
       - name: Deploy and Run Application
