@@ -7,9 +7,9 @@ on:
 
 jobs:
   build:
-    environment: Env
     name: Checkout and Deploy Source Code
     runs-on: self-hosted
+    environment: Env
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v3
@@ -22,10 +22,10 @@ jobs:
           TARGET: /home/ubuntu
 
   configure-docker:
-    environment: Env
     name: Configure Docker on Server
     needs: build
     runs-on: self-hosted
+    environment: Env
     steps:
       - name: Configure Docker and Permissions
         uses: appleboy/ssh-action@master
@@ -43,10 +43,10 @@ jobs:
             sudo systemctl restart docker
 
   deploy-app:
-    environment: Env
     name: Deploy Application
     needs: configure-docker
     runs-on: self-hosted
+    environment: Env
     steps:
       - name: Deploy and Run Application
         uses: appleboy/ssh-action@master
