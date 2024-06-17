@@ -20,10 +20,32 @@ jobs:
           REMOTE_HOST: ${{ secrets.DEPLOY_EC2_HOST }}
           REMOTE_USER: ${{ secrets.DEPLOYMENT_EC2_USER }}
           TARGET: /home/ubuntu
+
+  configure-docker:
+    environment: Env
+    name: Configure Docker on Server
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Configure Docker and Permissions
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOYMENT_EC2_HOST_DNS }}
+          username: ${{ secrets.DEPLOYMENT_EC2_USER }}
+          key: ${{ secrets.DEPLOYMENT_EC2_KEY }}
+          script: |
+            sudo bash -c 'cat <<EOF > /etc/docker/daemon.json
+            {
+              "exec-opts": ["native.cgroupdriver=systemd"]
+            }
+            EOF'
+            sudo usermod -aG docker $USER
+            sudo systemctl restart docker
+
   deploy-app:
     environment: Env
     name: Deploy Application
-    needs: build
+    needs: configure-docker
     runs-on: self-hosted
     steps:
       - name: Deploy and Run Application
