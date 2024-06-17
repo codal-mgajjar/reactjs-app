@@ -7,7 +7,6 @@ on:
 
 jobs:
   build:
-    environment: Env
     name: Checkout and Deploy Source Code
     runs-on: self-hosted
     steps:
@@ -22,7 +21,6 @@ jobs:
           TARGET: /home/ubuntu
 
   configure-docker:
-    environment: Env
     name: Configure Docker on Server
     needs: build
     runs-on: self-hosted
@@ -43,7 +41,6 @@ jobs:
             sudo systemctl restart docker
 
   deploy-app:
-    environment: Env
     name: Deploy Application
     needs: configure-docker
     runs-on: self-hosted
