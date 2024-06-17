@@ -1,4 +1,5 @@
-name: CICD
+name: CI/CD Pipeline
+
 on:
   push:
     branches:
@@ -6,21 +7,45 @@ on:
 
 jobs:
   build:
+    name: Checkout and Deploy Source Code
     runs-on: self-hosted
     steps:
-      - name: Checkout Source
+      - name: Checkout Source Code
         uses: actions/checkout@v3
-      - name: Deploy to Server
+      - name: Deploy Source Code to Server
         uses: easingthemes/ssh-deploy@main
         env:
           SSH_PRIVATE_KEY: ${{ secrets.DEPLOYMENT_EC2_KEY }}
           REMOTE_HOST: ${{ secrets.DEPLOY_EC2_HOST }}
           REMOTE_USER: ${{ secrets.DEPLOYMENT_EC2_USER }}
-  deploy:
+          TARGET: /home/ubuntu/reactjs-app
+
+  configure-docker:
+    name: Configure Docker on Server
     needs: build
     runs-on: self-hosted
     steps:
-      - name: Executing remote ssh commands using ssh key
+      - name: Configure Docker and Permissions
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOYMENT_EC2_HOST_DNS }}
+          username: ${{ secrets.DEPLOYMENT_EC2_USER }}
+          key: ${{ secrets.DEPLOYMENT_EC2_KEY }}
+          script: |
+            sudo bash -c 'cat <<EOF > /etc/docker/daemon.json
+            {
+              "exec-opts": ["native.cgroupdriver=systemd"]
+            }
+            EOF'
+            sudo usermod -aG docker $USER
+            sudo systemctl restart docker
+
+  deploy-app:
+    name: Deploy Application
+    needs: configure-docker
+    runs-on: self-hosted
+    steps:
+      - name: Deploy and Run Application
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DEPLOYMENT_EC2_HOST_DNS }}
@@ -28,10 +53,7 @@ jobs:
           key: ${{ secrets.DEPLOYMENT_EC2_KEY }}
           script: |
             cd /home/ubuntu/reactjs-app
-            git pull origin deploy-to-ec2
-            sudo docker stop react-app || true
-            sudo docker rm react-app || true
-            sudo docker build -t react-app .
-            sudo docker run -d -p 3000:80 --name react-app react-app
-
-
+            docker stop react-app || true
+            docker rm react-app || true
+            docker build -t react-app .
+            docker run -d -p 3000:80 --name react-app react-app
